@@ -24,8 +24,8 @@ class UpdateGuestRequest extends FormRequest
         return [
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
-            'phone' => 'sometimes|string|unique:guests,phone,' . $this->guest->id,
-            'email' => 'sometimes|email|unique:guests,email,' . $this->guest->id,
+            'phone_number' => 'sometimes|string|unique:guest,phone_number,' . $this->guest->id,
+            'email' => 'sometimes|email|unique:guest,email,' . $this->guest->id,
             'country' => 'sometimes|string|max:255',
         ];
     }

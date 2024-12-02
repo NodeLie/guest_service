@@ -6,7 +6,6 @@ use App\Http\Requests\StoreGuestRequest;
 use App\Http\Requests\UpdateGuestRequest;
 use App\Models\Guest;
 use App\Services\GuestService;
-use Illuminate\Http\Request;
 
 class GuestController extends Controller
 {

@@ -25,7 +25,7 @@ class StoreGuestRequest extends FormRequest
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255', 
             'email' => 'nullable|email|unique:guest,email',
-            'phone_number' => 'required|string|unique:guest,phone',
+            'phone_number' => 'required|string|unique:guest,phone_number',
             'country' => 'nullable|string|max:255',
         ];
     }
