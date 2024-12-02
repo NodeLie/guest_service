@@ -1,11 +1,12 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\DTO\GuestData;
+use App\Http\Requests\StoreGuestRequest;
+use App\Http\Requests\UpdateGuestRequest;
 use App\Models\Guest;
 use App\Services\GuestService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-use libphonenumber\PhoneNumberUtil;
 
 class GuestController extends Controller
 {
@@ -15,95 +16,44 @@ class GuestController extends Controller
     {
         $this->guestService = $guestService;
     }
-    public function store(Request $request)
+    public function store(StoreGuestRequest $request)
     {
-        try {
-            $request->validate([
-                'first_name' => 'required|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'email' => 'required|email|unique:guest,email',
-               'phone' => 'required|unique:guest,phone_number|regex:/^\+([0-9]{1,3})?[0-9]{10,15}$/',
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422); // Код 422 для ошибки валидации
-        }  
-        // Определяем страну по телефону
-        $phoneUtil = PhoneNumberUtil::getInstance();
-        $phoneNumber = $phoneUtil->parse($request->phone, null);
-        $country = $phoneUtil->getRegionCodeForNumber($phoneNumber);
+        $guestData = new GuestData(...$request->validated());
 
-        $guest = Guest::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'phone_number' => $request->phone,
-            'country' => $request->country ?? $country,
-        ]);
+        $guest = $this->guestService->create($guestData);
 
         return response()->json($guest, 201);
     }
 
     public function index()
     {
-        $guests = Guest::all();
-        return response()->json($guests);
+        $guests = $this->guestService->list();
+
+        return response()->json($guests, 200);
     }
 
-    public function show($id)
+    public function show(int $id)
     {
-        $guest = Guest::find($id);
-
-        if (!$guest) {
-            return response()->json(['message' => 'Guest not found'], 404);
-        }
+        $guest = Guest::findOrFail($id);
 
         return response()->json($guest);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateGuestRequest $request, int $id)
     {
-        $guest = Guest::find($id);
+        $guest = Guest::findOrFail($id);
+        $guestData = new GuestData(...$request->validated());
 
-        if (!$guest) {
-            return response()->json(['message' => 'Guest not found'], 404);
-        }
+        $updatedGuest = $this->guestService->update($guest, $guestData);
 
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:guest,email,' . $id,
-            'phone' => 'required|regex:/^\+([0-9]{1,3})?[0-9]{10,15}$/|unique:guest,phone_number,' . $id,
-        ]);
-
-        // Определяем страну по телефону
-        $phoneUtil = PhoneNumberUtil::getInstance();
-        $phoneNumber = $phoneUtil->parse($request->phone, null);
-        $country = $phoneUtil->getRegionCodeForNumber($phoneNumber);
-
-        $guest->update([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'phone_number' => $request->phone,
-            'country' => $country,
-        ]);
-
-        return response()->json($guest);
+        return response()->json($updatedGuest);
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
-        $guest = Guest::find($id);
+        $guest = Guest::findOrFail($id);
+        $this->guestService->delete($guest);
 
-        if (!$guest) {
-            return response()->json(['message' => 'Guest not found'], 404);
-        }
-
-        $guest->delete();
-
-        return response()->json(['message' => 'Guest deleted successfully']);
+        return response()->json(['message' => 'Guest deleted'], 200);
     }
 }
