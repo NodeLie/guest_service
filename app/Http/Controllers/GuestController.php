@@ -2,12 +2,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Guest;
+use App\Services\GuestService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use libphonenumber\PhoneNumberUtil;
 
 class GuestController extends Controller
 {
+    protected $guestService;
+
+    public function __construct(GuestService $guestService) 
+    {
+        $this->guestService = $guestService;
+    }
     public function store(Request $request)
     {
         try {
@@ -33,7 +40,7 @@ class GuestController extends Controller
             'last_name' => $request->last_name,
             'email' => $request->email,
             'phone_number' => $request->phone,
-            'country' => $country,
+            'country' => $request->country ?? $country,
         ]);
 
         return response()->json($guest, 201);
