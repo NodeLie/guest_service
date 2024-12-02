@@ -1,28 +1,30 @@
 # Гостевой микросервис
 
 Этот проект представляет собой микросервис для работы с гостями. Он реализует API для выполнения операций CRUD (создание, чтение, обновление, удаление) с гостями, хранящимися в базе данных.
-
+## Требования
+Перед установкой сервиса убедитесь, что у вас установлен Docker, если не установлен перейдите по ссылке https://docs.docker.com/get-started/get-docker/ и установите его на свой ПК.
 ## Установка
 
 1. Клонируйте репозиторий:
     ```bash
-    git clone https://github.com/your-username/guest-microservice.git
-    cd guest-microservice
+    https://github.com/NodeLie/guest_service.git
+    cd guest_service
     ```
-
-2. Установите зависимости:
+2. Запустите приложение:
+    ```bash
+    docker-compose up -d
+    ```
+3. Зайдите в bash контейнера сервиса:
+     ```bash
+    docker-compose exec -it app bash
+    ```
+4. Установите зависимости:
     ```bash
     composer install
     ```
-
-3. Запустите миграции для создания таблиц в базе данных:
+5. Запустите миграции для создания таблиц в базе данных:
     ```bash
     php artisan migrate
-    ```
-
-4. Для запуска проекта используйте Docker Compose:
-    ```bash
-    docker-compose up --build
     ```
 
 Теперь апи должно быть доступно по адресу http://localhost:8080/api
